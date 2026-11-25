@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anya’s quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;1,9..144,500&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--matcha:#8fa86a;--matcha-d:#5d7a3e;--matcha-l:#dbe6c4;--cream:#f6f0df;--mascarpone:#fffaf0;--cocoa:#4a3426;--cocoa-l:#8a6f5c;--line:#e3dcc3}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:Nunito,system-ui,sans-serif;color:var(--cocoa);background:radial-gradient(circle at 15% 0,#e6efd2 0,transparent 45%),radial-gradient(circle at 90% 100%,#e9dfc4 0,transparent 40%),var(--cream);min-height:100vh;padding:max(20px,env(safe-area-inset-top)) 16px 40px;display:flex;justify-content:center}
+main{width:100%;max-width:640px}
+h1,h2{font-family:Fraunces,Georgia,serif;margin:0}
+.brand{text-align:center;margin:8px 0 22px}
+.brand h1{font-size:clamp(34px,8vw,48px);color:var(--matcha-d);letter-spacing:-.5px}
+.brand p{margin:4px 0 0;color:var(--cocoa-l);font-style:italic;font-family:Fraunces,serif}
+.cake{background:var(--mascarpone);border-radius:26px;overflow:hidden;box-shadow:0 14px 34px rgba(74,52,38,.12);border:1px solid var(--line)}
+.layer{height:12px;background:var(--matcha)}
+.layer.b{height:8px;background:var(--cocoa);opacity:.85}
+.layer.c{height:12px;background:var(--matcha-l)}
+.card{padding:26px 22px 24px}
+.bar{height:8px;background:var(--matcha-l);border-radius:8px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--matcha-d);border-radius:8px;transition:width .35s}
+.meta{display:flex;justify-content:space-between;font-size:14px;color:var(--cocoa-l);margin:0 0 8px}
+h2{font-size:clamp(21px,5vw,26px);line-height:1.3;margin:22px 0 6px}
+.hint{font-size:14px;color:var(--matcha-d);margin:0 0 16px;font-weight:600}
+.opts{display:grid;gap:10px}
+.opt{display:flex;align-items:center;gap:12px;text-align:left;font:inherit;font-size:16px;color:var(--cocoa);background:#fff;border:2px solid var(--line);border-radius:16px;padding:13px 16px;cursor:pointer;transition:border-color .15s,background .15s,transform .1s}
+.opt:hover{border-color:var(--matcha)}
+.opt:active{transform:scale(.99)}
+.opt:focus-visible,.btn:focus-visible{outline:3px solid var(--matcha-d);outline-offset:2px}
+.opt.sel{background:var(--matcha-l);border-color:var(--matcha-d)}
+.mark{flex:none;width:24px;height:24px;border:2px solid var(--matcha);background:#fff;display:grid;place-items:center;font-size:14px;font-weight:700;color:#fff}
+.mark.r{border-radius:50%}.mark.s{border-radius:7px}
+.sel .mark{background:var(--matcha-d);border-color:var(--matcha-d)}
+.mark.n{border-radius:50%;color:var(--matcha-d)}
+.sel .mark.n{color:#fff}
+.nav{display:flex;gap:10px;justify-content:space-between;margin-top:24px}
+.btn{font:inherit;font-weight:700;font-size:16px;border:0;border-radius:999px;padding:13px 26px;cursor:pointer;background:var(--matcha-d);color:#fff;transition:opacity .15s}
+.btn.ghost{background:transparent;color:var(--cocoa-l);border:2px solid var(--line)}
+.btn.small{padding:8px 16px;font-size:14px;margin-top:12px}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.end{text-align:center;padding:12px 0 4px}
+.end .big{font-family:Fraunces,serif;font-size:clamp(54px,16vw,84px);color:var(--matcha-d);font-weight:700;line-height:1}
+.end .of{font-size:18px;color:var(--cocoa-l);margin:6px 0 18px}
+.end p{font-family:Fraunces,serif;font-size:21px;line-height:1.4;margin:0 0 22px}
+.start{text-align:center;padding:8px 0 4px}
+.start h2{margin:6px 0 10px;font-size:28px}
+.start p{margin:0 0 22px;color:var(--cocoa-l);line-height:1.5}
+input.name{width:100%;font:inherit;font-size:18px;color:var(--cocoa);background:#fff;border:2px solid var(--line);border-radius:16px;padding:14px 16px;margin:0 0 18px;text-align:center}
+input.name:focus{outline:none;border-color:var(--matcha-d)}
+.who{font-family:Fraunces,serif;font-style:italic;font-size:22px;color:var(--cocoa-l);margin:0 0 14px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <div class="brand"><h1>Anya’s quiz</h1><p>насколько хорошо ты знаешь именинницу?</p></div>
+  <div class="cake"><div class="layer"></div><div class="layer b"></div><div class="layer c"></div><div class="card" id="card"></div></div>
+</main>
+<script>
+// s = один ответ, m = несколько ответов, o = расставить по порядку
+const Q=[
+{t:"Что из этого Аня любит больше всего?",y:"s",o:["Джапан","Малатан","Онсайт","Папаэля","Френк бай баста"],c:[1]},
+{t:"Какие напитки Аня любит?",y:"m",o:["Вода","Матча","Кофе","Бабл ти","Фреши","Морковку","Свеклу и шпинат"],c:[0,1,4,5,6]},
+{t:"Что Аня ценит больше всего?",y:"s",o:["Доброта","Ум","Взаимность","Заботу"],c:[2]},
+{t:"Какие волосы Аня любит оставлять?",y:"s",o:["Короткие","Длинные","Волны","Прямые"],c:[0]},
+{t:"Спонтанный человек Аня?",y:"s",o:["Да","Нет","Не знаю"],c:[0]},
+{t:"Любит ли Аня спойлеры?",y:"s",o:["Да","Нет","Иногда как"],c:[0]},
+{t:"Чего Аня боится больше всего в физическом плане?",y:"s",o:["Лишнего веса","Прыщи и акне","Морщины","Сухость кожи"],c:[1]},
+{t:"Чего Аня боится больше всего в моральном плане?",y:"s",o:["Предательства","Лжи","Неадекватности","Коварства"],c:[0]},
+{t:"Что Аня больше всего любит в своём канале?",y:"m",o:["Лайки","Комментарии","Активность","Делиться жизнью и фотками","Быть популярной"],c:[0,1,2,3,4]},
+{t:"Как я реагирую, если планы внезапно меняются?",y:"s",o:["Злюсь","Спокойно","Никак"],c:[1]},
+{t:"Что для меня лучший способ снять стресс?",y:"s",o:["Вкусная еда","Шопинг или обновление гардероба","Сон или горячая ванна","Активность (спорт, уборка, долгая прогулка)"],c:[0]},
+{t:"Что Аня просто так в магазине не купит, то есть не пойдёт нацеленно за этим?",y:"s",o:["Шоколад","Фрукты","Мясо","Овощи"],c:[0]},
+{t:"Кто первый друг Ани в Москве?",y:"s",o:["Бека","Лана","Иро","Соня"],c:[0]},
+{t:"Кто первый друг Ани в магистратуре?",y:"s",o:["Женя","Фидан","Полина","Амина","Соня"],c:[3]},
+{t:"В какой стране Аня недавно была?",y:"s",o:["Малайзия","Вьетнам","Франция","Тайланд","Китай"],c:[0]},
+{t:"Расставь любимых исполнителей Ани в порядке возрастания (от самого любимого к менее любимому).",y:"o",o:["The Weeknd","Ed Sheeran","Bruno Mars","Shawn Mendes"],c:[0,2,1,3]},
+{t:"Какие любимые духи у Ани?",y:"m",o:["Byredo","Dior","Chanel","Armani","Guerlain"],c:[0,4]},
+{t:"Под какую песню Аня часто поёт в караоке?",y:"s",o:["Reminder","Perfect","Starboy","Аня не ходит в караоке"],c:[2]},
+{t:"Какое природное явление Аня больше всего ненавидит?",y:"s",o:["Снег","Дождь","Пекло","Туман"],c:[1]},
+{t:"Любимая соцсеть Ани?",y:"s",o:["Инстаграм","Фейсбук","Тредс","Ютуб","Тикток","Телеграм"],c:[1]},
+{t:"Сколько стоил любимый напиток Ани в Дринкит?",y:"s",o:["540 р","810 р","795 р","755 р"],c:[2]},
+{t:"Есть ли у Ани какая-то аллергия?",y:"s",o:["Лактоза","Глютен","Орехи","Яблоки","Нет аллергии"],c:[0]},
+{t:"Моё настоящее вьетнамское имя:",y:"s",o:["Đinh Thị Hông Anh","Đinh Thị Hồng Ánh","Dinh Thị Hồng Anh","Đinh Thi Hông Anh"],c:[1]},
+{t:"Любит ли Аня фастфуд?",y:"s",o:["Да","Нет"],c:[0]},
+{t:"Да, Аня любит фастфуд. А что ей в нём не нравится?",y:"s",o:["Картошка","Соусы","Сыр","Мясо","Лук"],c:[1]},
+{t:"Что Аня большую часть времени ест под сериал?",y:"s",o:["Чипсы","Хлеб","Фрукты","Булочки","Шоколад"],c:[1]},
+{t:"Любимый десерт Ани?",y:"s",o:["Медовик","Тирамису","Панна-котта","Шоколадный фондан","Блинный торт","Моти","Не любит десерты"],c:[1]},
+{t:"Любимый цвет Ани?",y:"s",o:["Белый","Зелёный тёмный","Зелёный светлый","Зелёный пастельный","Розовый","Чёрный"],c:[3]}
+];
+const A=Q.map(q=>q.y==="s"?null:[]);
+let i=-1;
+const card=document.getElementById("card");
+
+let who="";
+function start(){
+  i=-1;
+  A.forEach((_,k)=>A[k]=Q[k].y==="s"?null:[]);
+  card.innerHTML=`<div class="start"><h2>Привет!</h2><p>${Q.length} вопросов про Аню: где-то один ответ, где-то несколько, а где-то нужно расставить по порядку. Правильные ответы покажем только в самом конце, вместе с баллами.</p><input class="name" id="nm" type="text" maxlength="40" placeholder="Напиши своё имя" autocomplete="given-name" aria-label="Твоё имя"><button class="btn" id="go" disabled>Начать</button></div>`;
+  const nm=document.getElementById("nm"),go=document.getElementById("go");
+  nm.value=who;go.disabled=!nm.value.trim();
+  nm.oninput=()=>{go.disabled=!nm.value.trim()};
+  nm.onkeydown=e=>{if(e.key==="Enter"&&!go.disabled)go.click()};
+  go.onclick=()=>{who=nm.value.trim();i=0;show()};
+}
+
+function ready(){
+  const q=Q[i],a=A[i];
+  return q.y==="s"?a!==null:q.y==="m"?a.length>0:a.length===q.o.length;
+}
+
+function show(){
+  const q=Q[i],a=A[i];
+  const hint=q.y==="m"?"Можно выбрать несколько вариантов":q.y==="o"?"Нажимай варианты по очереди: 1-й будет самым любимым":"Выбери один вариант";
+  card.innerHTML=`
+    <div class="meta"><span>Вопрос ${i+1} из ${Q.length}</span></div>
+    <div class="bar"><i style="width:${i/Q.length*100}%"></i></div>
+    <h2>${q.t}</h2><p class="hint">${hint}</p>
+    <div class="opts" role="${q.y==="s"?"radiogroup":"group"}"></div>
+    ${q.y==="o"?'<button class="btn ghost small" id="reset">Сбросить порядок</button>':""}
+    <div class="nav"><button class="btn ghost" id="back" ${i===0?"disabled":""}>Назад</button><button class="btn" id="next">${i===Q.length-1?"Узнать результат":"Дальше"}</button></div>`;
+  const box=card.querySelector(".opts");
+  q.o.forEach((txt,k)=>{
+    const b=document.createElement("button");
+    b.className="opt";b.type="button";
+    const sel=q.y==="s"?a===k:a.includes(k);
+    if(sel)b.classList.add("sel");
+    let mark=q.y==="s"?'<span class="mark r"></span>':q.y==="m"?`<span class="mark s">${sel?"✓":""}</span>`:`<span class="mark n">${sel?a.indexOf(k)+1:""}</span>`;
+    b.innerHTML=mark+"<span>"+txt+"</span>";
+    b.setAttribute("aria-pressed",sel);
+    b.onclick=()=>{
+      if(q.y==="s")A[i]=k;
+      else if(q.y==="m")A[i]=sel?a.filter(x=>x!==k):[...a,k];
+      else if(!sel)A[i]=[...a,k];
+      show();
+    };
+    box.appendChild(b);
+  });
+  const nx=document.getElementById("next");
+  nx.disabled=!ready();
+  nx.onclick=()=>{i<Q.length-1?(i++,show()):finish()};
+  document.getElementById("back").onclick=()=>{i--;show()};
+  const r=document.getElementById("reset");
+  if(r)r.onclick=()=>{A[i]=[];show()};
+}
+
+function points(k){
+  const q=Q[k],a=A[k];
+  if(q.y==="s")return a===q.c[0]?1:0;
+  if(q.y==="o")return a.length===q.c.length&&a.every((v,j)=>v===q.c[j])?1:0;
+  return a.length===q.c.length&&q.c.every(x=>a.includes(x))?1:0;
+}
+
+function finish(){
+  const sc=Q.reduce((t,_,k)=>t+points(k),0);
+  const msg=sc<=5?"Ты вообще не знаешь Аню 😅":sc<=15?"Плохо знаешь, но старался":sc<=22?"Хорошо знаешь Аню!":sc<=26?"Очень хорошо знаешь":"Ты — Аня (или её вторая половинка)";
+  card.innerHTML=`<div class="bar"><i style="width:100%"></i></div>
+  <div class="end"><h2 style="margin-bottom:6px">Результат</h2><div class="who" id="who"></div><div class="big">${sc}</div><div class="of">баллов из ${Q.length}</div><p>${msg}</p><button class="btn" id="again">Пройти ещё раз</button></div>`;
+  document.getElementById("who").textContent=who;
+  document.getElementById("again").onclick=start;
+}
+start();
+</script>
+</body>
+</html>
